@@ -1,0 +1,54 @@
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    volumes:
+      - ./ollama_data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./open-webui_data:/app/backend/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw
+    ports:
+      - "18789:18789"
+    environment:
+      OLLAMA_API_KEY: "ollama-local"
+    volumes:
+      - ./openclaw/config:/home/node/.openclaw
+      - ./openclaw/workspace:/home/node/.openclaw/workspace
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  fastapi:
+    build: ./fastapi
+    container_name: fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./fastapi/token.json:/app/token.json:ro
+    restart: unless-stopped
