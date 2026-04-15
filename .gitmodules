@@ -1,0 +1,6 @@
+[submodule "fastapi"]
+	path = fastapi
+	url = git@github.com:masayukist/openclaw-fastapi.git
+[submodule "openclaw-workspace"]
+	path = openclaw/workspace
+	url = git@github.com:masayukist/openclaw-workspace.git
