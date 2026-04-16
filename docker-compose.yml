@@ -63,4 +63,5 @@ services:
       - "8000:8000"
     volumes:
       - ./fastapi/token.json:/app/token.json:ro
+      - ./fastapi/token_modify.json:/app/token_modify.json:ro
     restart: unless-stopped
