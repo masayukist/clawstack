@@ -146,10 +146,10 @@ class ArchiveApprovalView(discord.ui.View):
     def render_text(self) -> str:
         c = self.candidate
         return (
-            f"[{self.status}] **{c['subject']}**\n"
+            f"Status: **[{self.status}]**\n"
+            f"Title: **{c['subject']}**\n"
             f"From: {c['from']}\n"
             f"Reason: {c['reason']}\n"
-            f"対象: このメールを含むスレッド全体"
         )
 
     async def on_timeout(self):
