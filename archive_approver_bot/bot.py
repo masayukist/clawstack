@@ -135,10 +135,11 @@ class SkipThreadButton(discord.ui.Button):
 
 class ArchiveApprovalView(discord.ui.View):
     def __init__(self, approver_user_id: int, candidate: dict):
-        super().__init__(timeout=600)
+        super().__init__(timeout=1800)
         self.approver_user_id = approver_user_id
         self.candidate = candidate
         self.status = "PENDING"
+        self.message = None
 
         self.add_item(ArchiveThreadButton(candidate["thread_id"]))
         self.add_item(SkipThreadButton(candidate["thread_id"]))
@@ -155,6 +156,16 @@ class ArchiveApprovalView(discord.ui.View):
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
+        self.status = "EXPIRED"
+
+        if self.message:
+            try:
+                await self.message.edit(
+                    content=self.render_text(),
+                    view=self
+                )
+            except Exception as e:
+                print(f"Failed to update message on timeout: {e}")
 
 
 intents = discord.Intents.default()
@@ -185,10 +196,12 @@ async def on_message(message: discord.Message):
             candidate=candidate,
         )
 
-        await message.channel.send(
+        msg = await message.channel.send(
             content=view.render_text(),
             view=view,
         )
+
+        view.message = msg
 
     # OpenClaw の生メッセージは隠す
     try:
